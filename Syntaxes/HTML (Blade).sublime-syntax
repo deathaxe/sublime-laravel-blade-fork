@@ -83,6 +83,51 @@ contexts:
         3: source.css.embedded.html
         4: comment.block.html punctuation.definition.comment.end.html
 
+  tag-attributes:
+    - meta_prepend: true
+    - include: tag-blade-attributes
+
+  tag-blade-attributes:
+    - match: :\w+\b
+      scope: entity.other.attribute-name.component.blade
+      push:
+        - tag-blade-attribute-meta
+        - tag-blade-attribute-assignment
+
+  tag-blade-attribute-meta:
+    - meta_include_prototype: false
+    - meta_scope: meta.attribute-with-value.component.blade
+    - include: immediately-pop
+
+  tag-blade-attribute-assignment:
+    - meta_include_prototype: false
+    - match: =
+      scope: punctuation.separator.key-value.html
+      set:
+        - immediately-pop  # workaround https://github.com/sublimehq/sublime_text/issues/4069
+        - tag-blade-attribute-value
+    - include: else-pop
+
+  tag-blade-attribute-value:
+    - meta_include_prototype: false
+    - match: \"
+      scope: meta.string.html string.quoted.double.html punctuation.definition.string.begin.html
+      embed: scope:source.php#expressions
+      embed_scope: meta.string.html meta.embedded.html source.php.embedded.html
+      escape: \"
+      escape_captures:
+        0: meta.string.html string.quoted.double.html punctuation.definition.string.end.html
+      pop: 1
+    - match: \'
+      scope: meta.string.html string.single.double.html punctuation.definition.string.begin.html
+      embed: scope:source.php#expressions
+      embed_scope: meta.string.html meta.embedded.html source.php.embedded.html
+      escape: \'
+      escape_captures:
+        0: meta.string.html string.single.single.html punctuation.definition.string.end.html
+      pop: 1
+    - include: else-pop
+
   tag-generic-attribute:
     # fixes: https://github.com/Medalink/laravel-blade/issues/196
     - meta_prepend: true
